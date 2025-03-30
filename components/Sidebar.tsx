@@ -3,8 +3,31 @@
 
 import { User } from '@supabase/supabase-js';
 
+interface Topic {
+    id: string;
+    messages: Communication[];
+    people: Set<string>;
+    timeRange: { start: Date; end: Date };
+    relevanceScore: number;
+    lastUpdated: Date;
+  }
+
+interface Communication {
+    id: string;
+    user_id: string;
+    type: string;
+    source: string;
+    sender: string;
+    recipient: string;
+    timestamp: string;
+    content: string;
+    tags: string[];
+    metadata: { event_id?: string; task_due?: string };
+    }
+    
 interface SidebarProps {
   user: User;
+  topics?: Topic[];
 }
 
 export default function Sidebar({ user }: SidebarProps) {
