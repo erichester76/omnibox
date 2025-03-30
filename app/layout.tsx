@@ -1,10 +1,9 @@
-// app/layout.tsx
 import DeployButton from "@/components/deploy-button";
 import { EnvVarWarning } from "@/components/env-var-warning";
 import HeaderAuth from "@/components/header-auth";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import { GeistSans } from "next/font/google";
+import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import "./globals.css";
@@ -19,7 +18,7 @@ export const metadata = {
   description: "Consolidated Inbox for all your messages",
 };
 
-const geistSans = GeistSans({
+const geistSans = Geist({
   display: "swap",
   subsets: ["latin"],
 });
