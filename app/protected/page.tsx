@@ -14,7 +14,7 @@ export default async function ProtectedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+   <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <InboxLayout user={user} />
     </div>
   );
