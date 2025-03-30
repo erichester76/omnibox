@@ -20,7 +20,7 @@ interface Communication {
 }
 
 interface Topic {
-  id: string; // Unique ID for the topic
+  id: string;
   messages: Communication[];
   people: Set<string>;
   timeRange: { start: Date; end: Date };
@@ -45,10 +45,13 @@ export async function fetchAndGroupTopics(userId: string): Promise<Topic[]> {
   const topics: Topic[] = [];
   const messageGroups: Communication[][] = [];
 
-  // Simple grouping: cluster by people and time proximity
+  // Group by shared context: people, time proximity, tags, and metadata
   messages.forEach((message: Communication) => {
     const messageTime = new Date(message.timestamp);
     const people = new Set([message.sender, message.recipient]);
+    const tags = new Set(message.tags || []);
+    const eventId = message.metadata?.event_id || null;
+    const taskDue = message.metadata?.task_due || null;
 
     // Try to find an existing group
     let foundGroup = false;
@@ -61,7 +64,20 @@ export async function fetchAndGroupTopics(userId: string): Promise<Topic[]> {
       const groupPeople = new Set([firstMessage.sender, firstMessage.recipient]);
       const hasCommonPeople = Array.from(people).some(p => groupPeople.has(p));
 
-      if (hasCommonPeople && timeDiff < timeThreshold) {
+      const groupTags = new Set(firstMessage.tags || []);
+      const hasCommonTags = Array.from(tags).some(t => groupTags.has(t));
+
+      const groupEventId = firstMessage.metadata?.event_id || null;
+      const hasCommonEvent = eventId && groupEventId && eventId === groupEventId;
+
+      const groupTaskDue = firstMessage.metadata?.task_due || null;
+      const hasCommonTask = taskDue && groupTaskDue && taskDue === groupTaskDue;
+
+      // Group if messages share people AND (time proximity OR common tags OR common event OR common task)
+      if (
+        hasCommonPeople &&
+        (timeDiff < timeThreshold || hasCommonTags || hasCommonEvent || hasCommonTask)
+      ) {
         group.push(message);
         foundGroup = true;
         break;
@@ -87,14 +103,12 @@ export async function fetchAndGroupTopics(userId: string): Promise<Topic[]> {
       end: new Date(Math.max(...timestamps.map(t => t.getTime()))),
     };
 
-    // Compute relevance score (simplified for now)
     const lastUpdated = timeRange.end;
     const now = new Date();
     const timeSinceLastUpdate = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60); // Hours since last update
-    const baseScore = 100 - timeSinceLastUpdate; // Higher score for more recent updates
+    let relevanceScore = 100 - timeSinceLastUpdate; // Higher score for more recent updates
 
-    // Adjust score based on metadata (e.g., upcoming events or tasks)
-    let relevanceScore = baseScore;
+    // Adjust score based on metadata
     group.forEach(msg => {
       if (msg.metadata?.task_due) {
         const dueDate = new Date(msg.metadata.task_due);
@@ -104,7 +118,6 @@ export async function fetchAndGroupTopics(userId: string): Promise<Topic[]> {
         }
       }
       if (msg.metadata?.event_id) {
-        // Placeholder: Add logic to check event timing if you have an events table
         relevanceScore += 20; // Boost for event-related messages
       }
     });

@@ -28,9 +28,10 @@ interface Topic {
 interface SidebarProps {
   user: User;
   topics: Topic[];
+  onSelectTopic: (topicId: string) => void;
 }
 
-export default function Sidebar({ user, topics }: SidebarProps) {
+export default function Sidebar({ user, topics, onSelectTopic }: SidebarProps) {
   return (
     <div className="w-48 bg-white dark:bg-gray-800 shadow-lg flex flex-col">
       <div className="p-2 overflow-y-auto flex-1">
@@ -44,6 +45,7 @@ export default function Sidebar({ user, topics }: SidebarProps) {
               <div
                 key={topic.id}
                 className="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                onClick={() => onSelectTopic(topic.id)}
               >
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {Array.from(topic.people).join(', ')}
