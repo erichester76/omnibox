@@ -42,7 +42,7 @@ export default function InboxLayout({ user, topics }: InboxLayoutProps) {
     <div className="flex flex-col h-[calc(100vh-80px)]">
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar user={user} />
+        <Sidebar user={user} topics={topics} />
         <div className="flex-1 flex overflow-hidden">
           <TopicList topics={topics} onSelect={setSelectedTopic} />
           {selectedTopic && (
