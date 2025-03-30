@@ -18,7 +18,7 @@ export default function CommunicationList({ communications, onSelect }: Communic
       {communications.map(comm => (
         <div
           key={comm.id}
-          className="p-4 border-b cursor-pointer hover:bg-gray-50"
+          className="p-2 border-b cursor-pointer hover:bg-gray-50"
           onClick={() => onSelect(comm.id)}
         >
           <p className="font-semibold">{comm.sender}</p>
